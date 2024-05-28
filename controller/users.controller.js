@@ -23,6 +23,16 @@ router.get('/:id', async (req, res) => {
         res.send(user)
 }) 
 
+// Login
+router.get('/login/:email', async (req, res) => {
+    const user = await service.logIn(req.params.email)
+    if (user.length == 0){
+        res.status(404).json("No User with given email : " + req.params.email)
+    }
+    else
+        res.send(user)
+}) 
+
 // Add User
 router.post('/', async (req, res) => {
     const result = await service.addUser(req.body)

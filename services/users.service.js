@@ -13,7 +13,8 @@ module.exports.getUserById = async(id) => {
 }
 
 module.exports.addUser = async(obj) => {
-    const response = await db.query("INSERT INTO users(name, password) VALUES (?, ?)", [obj.name, obj.password])
+    // console.log(obj);
+    const response = await db.query("INSERT INTO users(name, email, password) VALUES (?, ?, ?)", [obj.name, obj.email, obj.password])
         .catch(e => console.log(e))
         return response;
 }
@@ -35,3 +36,9 @@ module.exports.deleteUser = async(id) => {
 //         .catch(e => console.log(e))
 //         return response;
 // }
+
+module.exports.logIn = async(email) => {
+    const response = await db.query("SELECT password FROM users WHERE email = ?", [email])
+        .catch(e => console.log(e))
+        return response;
+}
