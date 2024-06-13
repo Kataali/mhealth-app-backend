@@ -7,5 +7,4 @@ const mysqlpool = mysql.createPool({
     database:'mhealth_db'
 })
 
-
 module.exports = mysqlpool
