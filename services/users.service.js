@@ -30,7 +30,7 @@ module.exports.deleteUser = async(id) => {
 }
 
 module.exports.logIn = async(email) => {
-    const response = await db.query("SELECT password FROM users WHERE email = ?", [email])
+    const response = await db.query("SELECT * FROM users WHERE email = ?", [email])
         .catch(e => console.log(e))
         return response;
 }
