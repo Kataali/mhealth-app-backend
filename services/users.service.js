@@ -35,6 +35,13 @@ module.exports.logIn = async(email) => {
         return response;
 }
 
+module.exports.changePassword = async (obj, email) => {
+   const response = await db.query("UPDATE users SET password = ? WHERE email = ?", [obj.password, email])
+    .catch(e => console.log(e))
+    return response
+
+}
+
 module.exports.sendOtp = async(obj) => {
     email = obj.email
     const transporter = nodemailer.createTransport({
