@@ -16,14 +16,14 @@ router.get('/', async (req, res) => {
 }) 
 
 // Get User by id
-router.get('/:id', async (req, res) => {
+/*router.get('/:id', async (req, res) => {
     const user = await service.getUserById(req.params.id)
     if (user.length == 0){
         res.status(404).json("No User with given id : " + req.params.id)
     }
     else
         res.send(user)
-}) 
+}) */
 
 // Login
 router.get('/login/:email', async (req, res) => {
@@ -37,6 +37,12 @@ router.get('/login/:email', async (req, res) => {
         res.status(200).send({userData})
 }) 
 
+
+//Daily health tips 
+router.get('/tips', async (req, res) => {
+    const tips = await service.getDailyTips()
+    res.send(tips)
+})
 // Add User
 router.post('/register', async (req, res) => {
     const result = await service.addUser(req.body)
