@@ -3,6 +3,7 @@ const bodyparser = require("body-parser");
 const db = require("./db");
 const cors = require("cors");
 usersRoute = require("./controller/users.controller");
+modelRoute = require("./controller/model.controller");
 
 // App config
 const app = express();
@@ -12,6 +13,7 @@ const app = express();
 app.use(bodyparser.json());
 app.use(cors());
 app.use('/mhealth-api/users', usersRoute);
+app.use('/mhealth-api/disease', modelRoute);
 
 
 // To Check if the database is actually connected or not since there is no way of checking before creating the pool

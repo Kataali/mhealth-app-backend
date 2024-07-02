@@ -1,21 +1,27 @@
-const express = require("express")
+const express = require("express");
 
-router = express.Router()
+router = express.Router();
 
-const service = require("../services/users.service")
+const service = require("../services/users.service");
 
-var otp = 0
+var otp = 0;
 
 
 // http://localhost:3000/mhealth-api/users
 
 // Add User
 router.post('/register', async (req, res) => {
-    const result = await service.addUser(req.body)
+    try {
+        const result = await service.addUser(req.body)
+        res.send(result)
+    } catch (error) {
+        res.status(400).send(error);
+    }
+    
     // res.status(200).send("User successfully added")
-    res.send(result)
+    
 }) 
-
+ 
 // Login
 router.get('/login/:email', async (req, res) => {
     email = req.params.email;
@@ -56,7 +62,7 @@ router.put('/reset-password/:email', async(req, res) => {
 
 
 // Get User by id
-router.get('/:id', async (req, res) => {
+router.get('/user:id', async (req, res) => {
     const user = await service.getUserById(req.params.id)
     if (user.length == 0){
         res.status(404).json("No User with given id : " + req.params.id)
@@ -66,13 +72,13 @@ router.get('/:id', async (req, res) => {
 }) 
 
 // Get all Users
-router.get('/', async (req, res) => {
+router.get('/all', async (req, res) => {
     const users = await service.getAllUsers() 
     res.send(users) 
 }) 
 
 // Delete all completed users 
-router.delete('/', async (req, res) => {
+router.delete('/users', async (req, res) => {
     await service.deleteCompletedusers()
     res.status(200).send("users successfully deleted")
 }) 

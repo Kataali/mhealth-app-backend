@@ -5,39 +5,55 @@ const nodemailer = require("nodemailer");
 
 
  module.exports.getAllUsers = async() => {
-    const [data] = await db.query("SELECT * FROM users")
+    const data = await db.query("SELECT * FROM users")
         .catch(e => console.log(e))
         return data;
 }
 
 module.exports.getUserById = async(id) => {
     const [data] = await db.query("SELECT * FROM users WHERE id = ?",[id])
-        .catch(e => console.log(e))
+        .catch(error => {
+            console.log(error)
+            throw error;
+        })
         return data;
 }
 
 module.exports.addUser = async(obj) => {
     const id = parseInt((Date.now() * Math.random()).toString().substring(0,8));
     const response = await db.query("INSERT INTO users(id, name, email, password) VALUES (?, ?, ?, ?)", [id, obj.name.trim(), obj.email.trim(), obj.password.trim()])
-        .catch(e => console.log(e))
-        return response;
+        .catch(error => {
+            console.log(error)
+            throw error;
+        })
+        // console.log(response)
+            return response;
 }
 
 module.exports.deleteUser = async(id) => {
     const response = await db.query("DELETE FROM users WHERE id = ?", [id])
-        .catch(e => console.log(e))
+        .catch(error => {
+            console.log(error)
+            throw error;
+        })
         return response;
 }
 
 module.exports.logIn = async(email) => {
     const response = await db.query("SELECT * FROM users WHERE email = ?", [email])
-        .catch(e => console.log(e))
+        .catch(error => {
+            console.log(error)
+            throw error;
+        })
         return response;
 }
 
 module.exports.changePassword = async (obj, email) => {
    const response = await db.query("UPDATE users SET password = ? WHERE email = ?", [obj.password, email])
-    .catch(e => console.log(e))
+    .catch(error => {
+            console.log(error)
+            throw error;
+        })
     return response
 
 }
@@ -61,14 +77,22 @@ module.exports.sendOtp = async(obj) => {
     };
 
     const response = await transporter.sendMail(mailOptions)
-    .catch(e => {return e})
+    .catch(error => {
+            console.log(error)
+            throw error;
+        })
         return otpCode;
 }
 
 module.exports.verifyOtp = async(otp, obj) =>{
     const code = parseInt(obj.code)
-    if(code === otp){
+    try {
+        if(code === otp){
         return true;
     }
-    return false;
+    } catch (error) {
+        throw error;
+    }
+    return false; 
 }
+
