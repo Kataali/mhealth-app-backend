@@ -4,12 +4,18 @@ const nodemailer = require("nodemailer");
 
 
 
+
  module.exports.getAllUsers = async() => {
     const data = await db.query("SELECT * FROM users")
         .catch(e => console.log(e))
         return data;
 }
 
+module.exports.getDailyTips= async() => {
+    const [data] = await db.query("SELECT * FROM tips")
+        .catch(e => console.log(e))
+        return data;
+}
 module.exports.getUserById = async(id) => {
     const [data] = await db.query("SELECT * FROM users WHERE id = ?",[id])
         .catch(error => {
