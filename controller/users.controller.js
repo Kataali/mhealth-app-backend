@@ -1,13 +1,14 @@
-const express = require("express")
+const express = require("express");
 
-router = express.Router()
+router = express.Router();
 
-const service = require("../services/users.service")
+const service = require("../services/users.service");
 
-var otp = 0
+var otp = 0;
 
 
 // http://localhost:3000/mhealth-api/users
+
 
 // Get all Users
 router.get('/', async (req, res) => {
@@ -25,6 +26,21 @@ router.get('/', async (req, res) => {
         res.send(user)
 }) */
 
+
+// Add User
+router.post('/register', async (req, res) => {
+    try {
+        const result = await service.addUser(req.body)
+        res.send(result)
+    } catch (error) {
+        res.status(400).send(error);
+    }
+    
+    // res.status(200).send("User successfully added")
+    
+}) 
+ 
+r
 // Login
 router.get('/login/:email', async (req, res) => {
     email = req.params.email;
@@ -36,6 +52,7 @@ router.get('/login/:email', async (req, res) => {
     else
         res.status(200).send({userData})
 }) 
+
 
 
 //Daily health tips 
@@ -77,5 +94,45 @@ router.post('/verify-otp', async(req, res) => {
     const response = await service.verifyOtp(otp, req.body)
     res.status(200).send({verified: `${response}`})
 })
+
+router.put('/reset-password/:email', async(req, res) => {
+    email = req.params.email
+    const response = await service.changePassword(req.body, email)
+        .catch(e => {res.status(500).send({ message: 'Failed to reset password' },)})
+        res.status(200).send({message: 'Password reset successfully successfully'},);
+
+})
+
+
+
+
+// Get User by id
+router.get('/user:id', async (req, res) => {
+    const user = await service.getUserById(req.params.id)
+    if (user.length == 0){
+        res.status(404).json("No User with given id : " + req.params.id)
+    }
+    else
+        res.send(user)
+}) 
+
+// Get all Users
+router.get('/all', async (req, res) => {
+    const users = await service.getAllUsers() 
+    res.send(users) 
+}) 
+
+// Delete all completed users 
+router.delete('/users', async (req, res) => {
+    await service.deleteCompletedusers()
+    res.status(200).send("users successfully deleted")
+}) 
+
+// Delete User by Id
+// router.delete('/:id', async (req, res) => {
+//     await service.deleteUser(req.params.id)
+//     res.status(200).send("User successfully deleted")
+// })
+
 
 module.exports = router;
