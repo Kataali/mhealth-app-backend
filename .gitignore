@@ -1,3 +1,7 @@
 new.js
 new.dart
+<<<<<<< HEAD
 ./node_modules
+=======
+\node_modules
+>>>>>>> fe09adc9374a3e6435681482fb59f5d58cd0929c
