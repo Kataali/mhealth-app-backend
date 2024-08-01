@@ -5,9 +5,10 @@ router = express.Router();
 const service = require("../services/model.service");
 
 router.get("/predict", async (req, res) => {
-    const data = req.body;
-    response = await service.predictDisease(data);
-    return response;
+    // const data = req.body.data;
+    // console.log(data);
+    response = await service.predictDisease();
+    res.send(response);
 })
 
 

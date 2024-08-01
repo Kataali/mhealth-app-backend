@@ -40,7 +40,6 @@ router.post('/register', async (req, res) => {
     
 }) 
  
-r
 // Login
 router.get('/login/:email', async (req, res) => {
     email = req.params.email;
