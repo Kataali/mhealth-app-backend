@@ -27,6 +27,13 @@ router.get('/all/:userId', async (req, res) => {
     } 
 }) 
 
+// Mark Med as done
+router.put('/med-completed/:medId', async(req, res) => {
+    medId = req.params.medId
+    const response = await service.markDone(req.body, medId)
+        .catch(e => {res.status(500).send({ message: 'Failed to mark med as completed' },)})
+        res.status(200).send({message: 'Med successfully marked as completed'},);
 
+})
 
 module.exports = router;

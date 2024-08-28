@@ -13,7 +13,18 @@ module.exports.addMedication = async(obj) => {
 
 // Get All medications for a particular user
  module.exports.getAllMedications = async(userId) => {
-    const data = await db.query("SELECT * FROM medications where user_id = ?", [userId])
+    const data = await db.query("SELECT * FROM medications where user_id = ? ORDER BY completed ASC", [userId])
         .catch(e => console.log(e))
         return data;
+}
+
+// Mark med as done
+module.exports.markDone = async (obj, medId) => {
+    const response = await db.query("UPDATE medications SET completed = ? WHERE user_id = ? and id = ?", [true, obj.userId, medId])
+        .catch(error => {
+            console.log(error)
+            throw error;
+        })
+    console.log(response);
+    return response
 }

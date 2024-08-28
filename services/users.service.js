@@ -1,9 +1,7 @@
 const db = require('../db')
-const crypto = require("crypto");
+const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
-
-
-
+// const saltRounds = Math.floor(Math.random() * 20);
 
  module.exports.getAllUsers = async() => {
     const data = await db.query("SELECT * FROM users")
@@ -16,8 +14,9 @@ module.exports.getDailyTips= async() => {
         .catch(e => console.log(e))
         return data;
 }
-module.exports.getUserById = async(id) => {
-    const [data] = await db.query("SELECT * FROM users WHERE id = ?",[id])
+module.exports.getUserByEmail = async (obj) => {
+    const email = obj.email;
+    const [data] = await db.query("SELECT * FROM users WHERE email = ?",[email])
         .catch(error => {
             console.log(error)
             throw error;
@@ -26,14 +25,23 @@ module.exports.getUserById = async(id) => {
 }
 
 module.exports.addUser = async(obj) => {
-    const id = parseInt((Date.now() * Math.random()).toString().substring(0,8));
-    const response = await db.query("INSERT INTO users(id, name, email, password) VALUES (?, ?, ?, ?)", [id, obj.name.trim(), obj.email.trim(), obj.password.trim()])
-        .catch(error => {
-            console.log(error)
-            throw error;
-        })
-        // console.log(response)
-            return response;
+    const id = parseInt((Date.now() * Math.random()).toString().substring(0, 8));
+    const password = obj.password;
+    const email = obj.email.trim();
+    const name = obj.name.trim();
+    const saltRounds = Math.floor(Math.random() * 20);
+    bcrypt.hash(password, saltRounds, async (err, hashedPassword) => {
+        if(err){
+            throw "Error Hashing Password";
+        }
+        console.log(saltRounds);
+        const response = await db.query('INSERT INTO users(id, name, email, password) VALUES (?, ?, ?, ?)', [id, name, email, hashedPassword])
+            .catch(e => {
+                console.log(e);
+                // throw "database query error"
+            });
+        return response;
+    })
 }
 
 module.exports.deleteUser = async(id) => {
@@ -45,24 +53,33 @@ module.exports.deleteUser = async(id) => {
         return response;
 }
 
-module.exports.logIn = async(email) => {
+module.exports.logIn = async (email, password) => {
     const response = await db.query("SELECT * FROM users WHERE email = ?", [email])
-        .catch(error => {
-            console.log(error)
-            throw error;
-        })
-        return response;
+        .catch(e => { console.log(e); throw "database query error" });
+    // console.log(response[0].length)
+    if (response[0].length > 0) {
+            const hashedPassword = response[0][0].password;
+            if(bcrypt.compareSync(password, hashedPassword)){
+                return response[0];
+            }
+            else
+                return {"message":"login failed"};
+        }else
+        return {"message":"no account exists for this email"};
 }
 
 module.exports.changePassword = async (obj, email) => {
-   const response = await db.query("UPDATE users SET password = ? WHERE email = ?", [obj.password, email])
-    .catch(error => {
-            console.log(error)
-            throw error;
-        })
-    return response
-
-}
+    const password = obj.password.trim();
+    const saltRounds = Math.floor(Math.random() * 20);
+    try {
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        const [result] = await db.query("UPDATE users SET password = ? WHERE email = ?", [hashedPassword, email]);
+        return result.affectedRows;
+    } catch (err) {
+        console.error(err);
+        throw "An error occurred";
+    }
+};
 
 module.exports.sendOtp = async(obj) => {
     email = obj.email
@@ -78,7 +95,7 @@ module.exports.sendOtp = async(obj) => {
     const mailOptions = {
         from: "muhammadismaaiil360@gmail.com",
         to: email,
-        subject: " AI MHEALTH APP",
+        subject: "AI MHEALTH APP",
         text: `Your OTP code is ${otpCode}.`,
     };
 

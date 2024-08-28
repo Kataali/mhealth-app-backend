@@ -30,10 +30,18 @@ router.get('/', async (req, res) => {
 // Add User
 router.post('/register', async (req, res) => {
     try {
-        const result = await service.addUser(req.body)
-        res.send(result)
+        const user = await service.getUserByEmail(req.body)
+        console.log(user.length)
+        if (user.length > 0) {
+            throw "duplicate email address"
+        }
+        else {
+            const result = await service.addUser(req.body)
+            res.send(result)
+        }
     } catch (error) {
-        res.status(400).send(error);
+        console.log(error);
+        res.status(500).send(error);
     }
     
     // res.status(200).send("User successfully added")
@@ -41,15 +49,28 @@ router.post('/register', async (req, res) => {
 }) 
  
 // Login
-router.get('/login/:email', async (req, res) => {
+router.get('/login/:email/:password', async (req, res) => {
     email = req.params.email;
-    const response = await service.logIn(email)
-    userData = response[0][0]
-    if (response[0].length == 0){
-        res.status(404).json("No User with given email : " + email)
+    password = req.params.password;
+    try {
+       const response = await service.logIn(email, password)
+        console.log(response['message'] == null);
+        if (response['message'] == undefined) {
+            res.status(200).send(response);
+        }
+        else {
+            res.status(400).send(response);
+        }   
+    } catch (error) {
+        console.log(error)
+        throw error;
     }
-    else
-        res.status(200).send({userData})
+    // userData = response[0][0]
+    // if (response[0].length == 0){
+    //     res.status(404).json("No User with given email : " + email)
+    // }
+    // else
+    //     res.status(200).send({userData})
 }) 
 
 
@@ -60,11 +81,17 @@ router.get('/tips', async (req, res) => {
     res.send(tips)
 })
 // Add User
-router.post('/register', async (req, res) => {
-    const result = await service.addUser(req.body)
-    // res.status(200).send("User successfully added")
-    res.send(result)
-}) 
+// router.post('/register', async (req, res) => {
+//     const user = await service.getUserById(req.body)
+//     if (user) {
+//         throw "duplicate email address"
+//     }
+//     else {
+//         const result = await service.addUser(req.body)
+//         // res.status(200).send("User successfully added")
+//     }
+//     res.send(result)
+// }) 
 
 
 // Delete all completed users 
@@ -96,14 +123,19 @@ router.post('/verify-otp', async(req, res) => {
 
 router.put('/reset-password/:email', async(req, res) => {
     email = req.params.email
-    const response = await service.changePassword(req.body, email)
-        .catch(e => {res.status(500).send({ message: 'Failed to reset password' },)})
-        res.status(200).send({message: 'Password reset successfully successfully'},);
-
+    try {
+        const response = await service.changePassword(req.body, email);
+        // console.log(response);
+        if (response > 0) {
+            res.status(200).json({ message: 'Password reset successfully' },);
+        }
+        else {
+            res.status(400).json({ message: "No account found for this email address" });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message },)
+    }
 })
-
-
-
 
 // Get User by id
 router.get('/user:id', async (req, res) => {
